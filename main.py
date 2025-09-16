@@ -24,3 +24,11 @@ summary = summarization_chain.invoke({"text": text_to_summarize, "length": lengt
 
 print("\n* **Generated Summary:**\n")
 print(summary)
+
+while True:
+    question = input("\nEnter a question about the summary (or 'exit' to quit): \n")
+    if question.lower() == 'exit':
+        break
+    qa_result = qa.pipeline({"question": question, "context": summary})
+    print("\n* **Answer:**\n")
+    print(qa_result['answer'])
