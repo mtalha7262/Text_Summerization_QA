@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Analysis Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+            resize: vertical;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 120px;
+        }
+
+        .button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 15px 0;
+            color: #667eea;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .result h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-content {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .error {
+            background: #fee;
+            border-left-color: #e74c3c;
+        }
+
+        .error h3 {
+            color: #e74c3c;
+        }
+
+        .score {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Text Analysis Tool</h1>
+            <p>Powered by AI - Summarize text and get answers to your questions</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Summarization Card -->
+            <div class="card">
+                <h2>
+                    <span class="icon">📝</span>
+                    Text Summarization
+                </h2>
+                
+                <div class="form-group">
+                    <label for="summaryText">Enter text to summarize:</label>
+                    <textarea 
+                        id="summaryText" 
+                        placeholder="Paste your article, document, or any long text here..."
+                        rows="8"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="summaryLength">Summary length:</label>
+                    <select id="summaryLength">
+                        <option value="short">Short (20-60 words)</option>
+                        <option value="medium" selected>Medium (60-150 words)</option>
+                        <option value="long">Long (120-300 words)</option>
+                    </select>
+                </div>
+
+                <button class="button" onclick="summarizeText()">
+                    Generate Summary
+                </button>
+
+                <div class="loading" id="summaryLoading">
+                    <div class="spinner"></div>
+                    Processing your text...
+                </div>
+
+                <div class="result" id="summaryResult">
+                    <h3>Summary:</h3>
+                    <div class="result-content" id="summaryContent"></div>
+                </div>
+            </div>
+
+            <!-- Q&A Card -->
+            <div class="card">
+                <h2>
+                    <span class="icon">❓</span>
+                    Question & Answer
+                </h2>
+                
+                <div class="form-group">
+                    <label for="qaContext">Context (text to search for answers):</label>
+                    <textarea 
+                        id="qaContext" 
+                        placeholder="Provide the text that contains information to answer your question..."
+                        rows="6"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="qaQuestion">Your question:</label>
+                    <textarea 
+                        id="qaQuestion" 
+                        placeholder="Ask a question about the context above..."
+                        rows="3"
+                    ></textarea>
+                </div>
+
+                <button class="button" onclick="askQuestion()">
+                    Get Answer
+                </button>
+
+                <div class="loading" id="qaLoading">
+                    <div class="spinner"></div>
+                    Finding your answer...
+                </div>
+
+                <div class="result" id="qaResult">
+                    <h3>Answer:</h3>
+                    <div class="result-content" id="qaContent"></div>
+                    <div class="score" id="qaScore"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        function showLoading(elementId) {
+            document.getElementById(elementId).style.display = 'block';
+        }
+
+        function hideLoading(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        function showResult(resultId, isError = false) {
+            const resultElement = document.getElementById(resultId);
+            resultElement.style.display = 'block';
+            if (isError) {
+                resultElement.classList.add('error');
+            } else {
+                resultElement.classList.remove('error');
+            }
+        }
+
+        function hideResult(resultId) {
+            document.getElementById(resultId).style.display = 'none';
+        }
+
+        async function summarizeText() {
+            const text = document.getElementById('summaryText').value.trim();
+            const length = document.getElementById('summaryLength').value;
+
+            if (!text) {
+                alert('Please enter some text to summarize.');
+                return;
+            }
+
+            hideResult('summaryResult');
+            showLoading('summaryLoading');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/summarize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        length: length
+                    })
+                });
+
+                const data = await response.json();
+                
+                hideLoading('summaryLoading');
+
+                if (response.ok && data.summary) {
+                    document.getElementById('summaryContent').textContent = data.summary;
+                    showResult('summaryResult');
+                } else {
+                    document.getElementById('summaryContent').textContent = 
+                        data.error || 'Failed to generate summary. Please try again.';
+                    showResult('summaryResult', true);
+                }
+            } catch (error) {
+                hideLoading('summaryLoading');
+                document.getElementById('summaryContent').textContent = 
+                    'Network error. Please check if the server is running on http://localhost:8000';
+                showResult('summaryResult', true);
+            }
+        }
+
+        async function askQuestion() {
+            const context = document.getElementById('qaContext').value.trim();
+            const question = document.getElementById('qaQuestion').value.trim();
+
+            if (!context || !question) {
+                alert('Please provide both context and a question.');
+                return;
+            }
+
+            hideResult('qaResult');
+            showLoading('qaLoading');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/qa`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        context: context,
+                        question: question
+                    })
+                });
+
+                const data = await response.json();
+                
+                hideLoading('qaLoading');
+
+                if (response.ok && data.answer) {
+                    document.getElementById('qaContent').textContent = data.answer;
+                    
+                    const scoreElement = document.getElementById('qaScore');
+                    if (data.score !== undefined) {
+                        const confidence = (data.score * 100).toFixed(1);
+                        scoreElement.textContent = `Confidence: ${confidence}%`;
+                    } else {
+                        scoreElement.textContent = '';
+                    }
+                    
+                    showResult('qaResult');
+                } else {
+                    document.getElementById('qaContent').textContent = 
+                        data.error || 'Failed to get answer. Please try again.';
+                    document.getElementById('qaScore').textContent = '';
+                    showResult('qaResult', true);
+                }
+            } catch (error) {
+                hideLoading('qaLoading');
+                document.getElementById('qaContent').textContent = 
+                    'Network error. Please check if the server is running on http://localhost:8000';
+                document.getElementById('qaScore').textContent = '';
+                showResult('qaResult', true);
+            }
+        }
+
+        // Add some sample text for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            const sampleText = `Artificial intelligence (AI) is intelligence demonstrated by machines, in contrast to the natural intelligence displayed by humans and animals. Leading AI textbooks define the field as the study of "intelligent agents": any device that perceives its environment and takes actions that maximize its chance of successfully achieving its goals. Colloquially, the term "artificial intelligence" is often used to describe machines that mimic "cognitive" functions that humans associate with the human mind, such as "learning" and "problem solving". As machines become increasingly capable, tasks considered to require "intelligence" are often removed from the definition of AI, a phenomenon known as the AI effect. A quip in Tesler's Theorem says "AI is whatever hasn't been done yet." For instance, optical character recognition is frequently excluded from things considered to be AI, having become a routine technology.`;
+            
+            // Uncomment the line below to pre-fill with sample text for testing
+            // document.getElementById('summaryText').value = sampleText;
+        });
+    </script>
+</body>
+</html>
